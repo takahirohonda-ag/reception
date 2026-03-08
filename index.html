@@ -206,8 +206,7 @@
 
 <!-- ===== Screen 1: Welcome ===== -->
 <div id="screen1" class="screen active">
-  <div class="logo-text">TYCOON</div>
-  <div class="logo-sub">CAPITAL</div>
+  <img src="tc_logo.png" alt="TYCOON CAPITAL" style="width: 320px; margin-bottom: -8px;">
   <div class="welcome-divider"></div>
   <div class="welcome-msg">
     ようこそ。担当者をお呼びします。<br>
@@ -254,16 +253,16 @@ function getWebhookUrl() { return localStorage.getItem('SLACK_WEBHOOK') || ''; }
 
 // 担当者リスト（追加・削除・並び替えはここで）
 const STAFF = [
-  { nameJp: '本田 貴大',   nameEn: 'Honda Takahiro',     slackId: 'U0AJ66N6DT9' },
+  { nameJp: '笠井 レオ',   nameEn: 'Kasai Reo',           slackId: 'U0AKGDMSPT2' },
+  { nameJp: '沼沢 想太',   nameEn: 'Numazawa Sota',       slackId: 'U0AKGDK0U1W' },
   { nameJp: '上杉 修平',   nameEn: 'Uesugi Shuhei',      slackId: 'U0AJ68VDX71' },
-  { nameJp: '河﨑 蘭',     nameEn: 'Kawasaki Ran',        slackId: 'U0AJFPKBP43' },
-  { nameJp: '小西 美紗',   nameEn: 'Konishi Misa',        slackId: 'U0AJFPN228K' },
+  { nameJp: '本田 貴大',   nameEn: 'Honda Takahiro',     slackId: 'U0AJ66N6DT9' },
   { nameJp: 'ムン ジユン', nameEn: 'Aprille Moon',        slackId: 'U0AJL3YCXBQ' },
   { nameJp: '初見 真菜',   nameEn: 'Hatsumi Mana',        slackId: 'U0AJRP960UU' },
-  { nameJp: '佐藤 楓亜',   nameEn: 'Sato Fua',            slackId: 'U0AJRPBF5FW' },
-  { nameJp: '沼沢 想太',   nameEn: 'Numazawa Sota',       slackId: 'U0AKGDK0U1W' },
-  { nameJp: '笠井 玲央',   nameEn: 'Kasai Reo',           slackId: 'U0AKGDMSPT2' },
   { nameJp: '永井 梨穂',   nameEn: 'Nagai Riho',          slackId: 'U0AKGDNP0LQ' },
+  { nameJp: '河﨑 蘭',     nameEn: 'Kawasaki Ran',        slackId: 'U0AJFPKBP43' },
+  { nameJp: '佐藤 楓亜',   nameEn: 'Sato Fua',            slackId: 'U0AJRPBF5FW' },
+  { nameJp: '小西 美紗',   nameEn: 'Konishi Misa',        slackId: 'U0AJFPN228K' },
 ];
 
 const AUTO_RESET_SEC = 5;
