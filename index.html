@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tycoon Capital Reception</title>
+<style>
+  :root {
+    --primary: #051212;
+    --accent: #1a8a7d;
+    --accent-light: #22b8a7;
+    --bg: #f7f8fa;
+    --card-bg: #ffffff;
+    --text: #051212;
+    --text-light: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%; width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Yu Gothic Medium', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateY(20px);
+  }
+  .screen.active {
+    opacity: 1; pointer-events: auto; transform: translateY(0);
+  }
+
+  /* ===== Screen 1: Welcome ===== */
+  .logo-text {
+    font-size: 52px; font-weight: 700; letter-spacing: 6px;
+    color: var(--primary); text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .logo-sub {
+    font-size: 28px; font-weight: 500; letter-spacing: 10px;
+    color: var(--primary); text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .welcome-divider {
+    width: 60px; height: 3px;
+    background: var(--accent);
+    margin: 36px 0;
+    border-radius: 2px;
+  }
+  .welcome-msg {
+    font-size: 20px; color: var(--text-light);
+    text-align: center; line-height: 1.6;
+    margin-bottom: 48px;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 20px 64px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 60px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:active {
+    background: #0a2424;
+    transform: scale(0.97);
+  }
+
+  /* ===== Screen 2: Staff Selection ===== */
+  .select-title {
+    font-size: 26px; font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .select-subtitle {
+    font-size: 16px; color: var(--text-light);
+    margin-bottom: 32px;
+  }
+  .staff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+  .staff-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .staff-card:active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(26,138,125,0.15);
+    transform: scale(0.97);
+  }
+  .staff-name-jp {
+    font-size: 20px; font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 3px;
+  }
+  .staff-name-en {
+    font-size: 13px; color: var(--text-light);
+    letter-spacing: 0.5px;
+  }
+  .btn-back {
+    background: none;
+    border: 2px solid var(--border);
+    color: var(--text-light);
+    padding: 14px 48px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .btn-back:active {
+    border-color: var(--text-light);
+  }
+
+  /* ===== Screen 3: Confirmation ===== */
+  .check-circle {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 32px;
+    animation: scaleIn 0.4s ease;
+  }
+  .check-circle svg {
+    width: 48px; height: 48px; stroke: #fff; fill: none;
+    stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .confirm-name {
+    font-size: 28px; font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 16px;
+  }
+  .confirm-msg {
+    font-size: 18px; color: var(--text-light);
+    text-align: center; line-height: 1.7;
+  }
+  .confirm-timer {
+    margin-top: 40px;
+    width: 200px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .confirm-timer-bar {
+    height: 100%; width: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: timerShrink 5s linear forwards;
+  }
+
+  @keyframes scaleIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes timerShrink {
+    0% { width: 100%; }
+    100% { width: 0%; }
+  }
+
+  /* ===== Error Toast ===== */
+  .toast {
+    position: fixed; bottom: 40px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #dc2626; color: #fff;
+    padding: 16px 32px; border-radius: 12px;
+    font-size: 16px; font-weight: 600;
+    opacity: 0; transition: all 0.3s ease;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Screen 1: Welcome ===== -->
+<div id="screen1" class="screen active">
+  <div class="logo-text">TYCOON</div>
+  <div class="logo-sub">CAPITAL</div>
+  <div class="welcome-divider"></div>
+  <div class="welcome-msg">
+    ようこそ。担当者をお呼びします。<br>
+    Welcome. We'll notify your contact.
+  </div>
+  <button class="btn-primary" onclick="showScreen(2)">
+    Select Staff / 担当者を選ぶ
+  </button>
+</div>
+
+<!-- ===== Screen 2: Staff Selection ===== -->
+<div id="screen2" class="screen">
+  <div class="select-title">Who would you like to see?</div>
+  <div class="select-subtitle">お会いになりたい担当者を選んでください。</div>
+  <div class="staff-grid" id="staffGrid"></div>
+  <button class="btn-back" onclick="showScreen(1)">← Back / 戻る</button>
+</div>
+
+<!-- ===== Screen 3: Confirmation ===== -->
+<div id="screen3" class="screen">
+  <div class="check-circle">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="confirm-name" id="confirmName"></div>
+  <div class="confirm-msg">
+    Notified. Please wait a moment.<br>
+    通知しました。少々お待ちください。
+  </div>
+  <div class="confirm-timer"><div class="confirm-timer-bar" id="timerBar"></div></div>
+</div>
+
+<!-- ===== Error Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIGURATION — 編集はここだけ
+// ============================================================
+
+// Slack Incoming Webhook URL（Slack App設定画面で取得してここに貼る）
+const WEBHOOK_URL = 'YOUR_SLACK_WEBHOOK_URL_HERE';
+
+// 担当者リスト（追加・削除・並び替えはここで）
+const STAFF = [
+  { nameJp: '本田 貴大',   nameEn: 'Honda Takahiro',     slackId: 'U0AJ66N6DT9' },
+  { nameJp: '上杉 修平',   nameEn: 'Uesugi Shuhei',      slackId: 'U0AJ68VDX71' },
+  { nameJp: '河﨑 蘭',     nameEn: 'Kawasaki Ran',        slackId: 'U0AJFPKBP43' },
+  { nameJp: '小西 美紗',   nameEn: 'Konishi Misa',        slackId: 'U0AJFPN228K' },
+  { nameJp: 'ムン ジユン', nameEn: 'Aprille Moon',        slackId: 'U0AJL3YCXBQ' },
+  { nameJp: '初見 真菜',   nameEn: 'Hatsumi Mana',        slackId: 'U0AJRP960UU' },
+  { nameJp: '佐藤 楓亜',   nameEn: 'Sato Fua',            slackId: 'U0AJRPBF5FW' },
+  { nameJp: '沼沢 想太',   nameEn: 'Numazawa Sota',       slackId: 'U0AKGDK0U1W' },
+  { nameJp: '笠井 玲央',   nameEn: 'Kasai Reo',           slackId: 'U0AKGDMSPT2' },
+  { nameJp: '永井 梨穂',   nameEn: 'Nagai Riho',          slackId: 'U0AKGDNP0LQ' },
+];
+
+const AUTO_RESET_SEC = 5;
+
+// ============================================================
+// APP LOGIC
+// ============================================================
+
+let resetTimer = null;
+
+// Build staff grid
+function buildGrid() {
+  const grid = document.getElementById('staffGrid');
+  grid.innerHTML = '';
+  STAFF.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'staff-card';
+    card.innerHTML = `<div class="staff-name-jp">${s.nameJp}</div><div class="staff-name-en">${s.nameEn}</div>`;
+    card.addEventListener('click', () => selectStaff(i));
+    grid.appendChild(card);
+  });
+}
+
+// Screen transition
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen' + n).classList.add('active');
+}
+
+// Staff selected → notify
+function selectStaff(index) {
+  const staff = STAFF[index];
+
+  // Show confirmation screen immediately
+  document.getElementById('confirmName').textContent = `${staff.nameJp} / ${staff.nameEn}`;
+  // Reset timer animation
+  const bar = document.getElementById('timerBar');
+  bar.style.animation = 'none';
+  void bar.offsetHeight; // force reflow
+  bar.style.animation = `timerShrink ${AUTO_RESET_SEC}s linear forwards`;
+  showScreen(3);
+
+  // Send Slack notification
+  sendSlackNotification(staff);
+
+  // Auto-reset
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(() => showScreen(1), AUTO_RESET_SEC * 1000);
+}
+
+// Slack Webhook
+function sendSlackNotification(staff) {
+  if (WEBHOOK_URL === 'YOUR_SLACK_WEBHOOK_URL_HERE') {
+    showToast('⚠️ Webhook URL未設定');
+    console.warn('Slack Webhook URL が設定されていません。HTMLファイル内の WEBHOOK_URL を設定してください。');
+    return;
+  }
+
+  const payload = {
+    text: `🏢 来客通知\n<@${staff.slackId}> さん宛にお客様がお見えです。\nVisitor for ${staff.nameEn} — please come to reception.`,
+  };
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'payload=' + encodeURIComponent(JSON.stringify(payload)),
+  }).catch(() => {
+    showToast('通知の送信に失敗しました');
+  });
+}
+
+// Toast notification
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+buildGrid();
+</script>
+</body>
+</html>
