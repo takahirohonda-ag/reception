@@ -247,8 +247,10 @@
 // CONFIGURATION — 編集はここだけ
 // ============================================================
 
-// Slack Incoming Webhook URL（Slack App設定画面で取得してここに貼る）
-const WEBHOOK_URL = 'YOUR_SLACK_WEBHOOK_URL_HERE';
+// Slack Incoming Webhook URL — localStorageから読み込み（ソースに露出しない）
+// 初回設定: ブラウザのコンソールで localStorage.setItem('SLACK_WEBHOOK', 'https://hooks.slack.com/...')
+// または URL末尾に ?setup と付けると設定画面が表示されます
+function getWebhookUrl() { return localStorage.getItem('SLACK_WEBHOOK') || ''; }
 
 // 担当者リスト（追加・削除・並び替えはここで）
 const STAFF = [
@@ -314,9 +316,9 @@ function selectStaff(index) {
 
 // Slack Webhook
 function sendSlackNotification(staff) {
-  if (WEBHOOK_URL === 'YOUR_SLACK_WEBHOOK_URL_HERE') {
-    showToast('⚠️ Webhook URL未設定');
-    console.warn('Slack Webhook URL が設定されていません。HTMLファイル内の WEBHOOK_URL を設定してください。');
+  const url = getWebhookUrl();
+  if (!url) {
+    showToast('⚠️ Webhook URL未設定 — ?setup でアクセスして設定してください');
     return;
   }
 
@@ -324,7 +326,7 @@ function sendSlackNotification(staff) {
     text: `🏢 来客通知\n<@${staff.slackId}> さん宛にお客様がお見えです。\nVisitor for ${staff.nameEn} — please come to reception.`,
   };
 
-  fetch(WEBHOOK_URL, {
+  fetch(url, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -342,8 +344,42 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// Setup mode: ?setup をURLに付けると設定画面を表示
+function checkSetupMode() {
+  if (!location.search.includes('setup')) return;
+  const current = getWebhookUrl();
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:40px;max-width:520px;width:90%;text-align:center;">
+      <h2 style="margin-bottom:8px;font-size:22px;">Webhook Setup</h2>
+      <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Slack Incoming Webhook URLを入力してください</p>
+      <input id="setupInput" type="url" placeholder="https://hooks.slack.com/services/..." value="${current}"
+        style="width:100%;padding:14px;border:2px solid #e5e7eb;border-radius:12px;font-size:16px;margin-bottom:16px;">
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="saveWebhook()" style="background:#051212;color:#fff;border:none;padding:14px 32px;border-radius:60px;font-size:16px;font-weight:600;cursor:pointer;">Save</button>
+        <button onclick="this.closest('div[style]').parentElement.remove();history.replaceState(null,'',location.pathname)" style="background:none;border:2px solid #e5e7eb;padding:14px 32px;border-radius:60px;font-size:16px;font-weight:600;cursor:pointer;color:#6b7280;">Cancel</button>
+      </div>
+      <p id="setupStatus" style="margin-top:16px;font-size:14px;color:#22b8a7;"></p>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function saveWebhook() {
+  const val = document.getElementById('setupInput').value.trim();
+  if (!val.startsWith('https://hooks.slack.com/')) {
+    document.getElementById('setupStatus').textContent = '❌ URLが正しくありません';
+    document.getElementById('setupStatus').style.color = '#dc2626';
+    return;
+  }
+  localStorage.setItem('SLACK_WEBHOOK', val);
+  document.getElementById('setupStatus').textContent = '✅ 保存しました';
+  setTimeout(() => { history.replaceState(null, '', location.pathname); location.reload(); }, 1000);
+}
+
 // Init
 buildGrid();
+checkSetupMode();
 </script>
 </body>
 </html>
